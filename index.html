@@ -331,6 +331,7 @@
       <span><span class="dot" style="background:var(--uncertain)"></span>Uncertain &mdash; no public source could confirm either way</span>
     </div>
     <p style="font-size:11.5px;color:var(--ink-faint);margin-top:14px;">Your progress is saved in this browser only (not synced anywhere). <button class="btn ghost" id="resetStats" style="font-size:11.5px;padding:0;">Reset saved progress</button></p>
+    <p id="saveStatus" style="font-size:11px;color:var(--ink-faint);margin-top:6px;"></p>
   </div>
 
   <div id="quiz">
@@ -405,15 +406,51 @@ const QUESTIONS = [{"num": 1, "type": "single", "stem": "A Configuration Manager
 const TOPICS = [...new Set(QUESTIONS.map(q => q.topic))];
 
 const STORE_KEY = 'cisdf-drill-v1';
+const SESSION_KEY = 'cisdf-drill-session-v1';
+const BUILD = 'v2';
+
+// ---- App Inventor bridge ----
+// The Android app is an App Inventor WebViewer, which does not keep localStorage across a full app restart.
+// Its WebViewString is reachable from JS as window.AppInventor, so we mirror stats + the paused session there
+// and the app's blocks copy it into TinyDB (see the setup notes). In a normal browser this all no-ops.
+const BRIDGE_PREFIX = 'CISDF1:';
+let memSession = null;     // in-memory copy of the paused session, used when localStorage is unavailable
+let bridgeReady = false;   // don't overwrite the app's stored copy until we've had a chance to read it
+function aiBridge(){
+  try{
+    const a = window.AppInventor;
+    if(a && typeof a.getWebViewString === 'function' && typeof a.setWebViewString === 'function') return a;
+  }catch(e){}
+  return null;
+}
+function bridgeRead(){
+  const a = aiBridge();
+  if(!a) return null;
+  try{
+    const s = String(a.getWebViewString() || '');
+    if(s.indexOf(BRIDGE_PREFIX) !== 0) return null;
+    const o = JSON.parse(s.slice(BRIDGE_PREFIX.length));
+    return (o && typeof o === 'object') ? o : null;
+  }catch(e){ return null; }
+}
+function bridgePush(){
+  const a = aiBridge();
+  if(!a || !bridgeReady) return;
+  try{ a.setWebViewString(BRIDGE_PREFIX + JSON.stringify({ stats: stats, session: memSession })); }catch(e){}
+}
+
 function loadStats(){
   try{
     const raw = localStorage.getItem(STORE_KEY);
     if(raw) return JSON.parse(raw);
   }catch(e){}
+  const b = bridgeRead();
+  if(b && b.stats && typeof b.stats === 'object' && b.stats.perQuestion) return b.stats;
   return { sessions: 0, bestPct: null, perQuestion: {}, lastMissed: [] };
 }
 function saveStats(s){
   try{ localStorage.setItem(STORE_KEY, JSON.stringify(s)); }catch(e){}
+  bridgePush();
 }
 let stats = loadStats();
 
@@ -794,32 +831,35 @@ document.getElementById('backToMenuBtn').addEventListener('click', () => {
 });
 
 // ---------------- resume / home navigation ----------------
-const SESSION_KEY = 'cisdf-drill-session-v1';
-
 function saveSession(){
   if(!session) return;
-  try{
-    localStorage.setItem(SESSION_KEY, JSON.stringify({
-      v: 1,
-      modeId: session.modeId,
-      queue: session.queue.map(q => q.num),
-      // if the current question is already answered, resume at the next one
-      pos: session.answered ? session.pos + 1 : session.pos,
-      score: session.score,
-      missedNums: session.missedNums,
-      perTopic: session.perTopic,
-      savedAt: Date.now(),
-    }));
-  }catch(e){}
+  memSession = {
+    v: 1,
+    modeId: session.modeId,
+    queue: session.queue.map(q => q.num),
+    // if the current question is already answered, resume at the next one
+    pos: session.answered ? session.pos + 1 : session.pos,
+    score: session.score,
+    missedNums: session.missedNums.slice(),
+    perTopic: JSON.parse(JSON.stringify(session.perTopic)),
+    savedAt: Date.now(),
+  };
+  try{ localStorage.setItem(SESSION_KEY, JSON.stringify(memSession)); }catch(e){}
+  bridgePush();
 }
 function clearSavedSession(){
+  memSession = null;
   try{ localStorage.removeItem(SESSION_KEY); }catch(e){}
+  bridgePush();
 }
 function loadSavedSession(){
   try{
-    const raw = localStorage.getItem(SESSION_KEY);
-    if(!raw) return null;
-    const s = JSON.parse(raw);
+    let s = null;
+    try{
+      const raw = localStorage.getItem(SESSION_KEY);
+      if(raw) s = JSON.parse(raw);
+    }catch(e){}
+    if(!s) s = memSession;
     if(!s || s.v !== 1 || !Array.isArray(s.queue) || !s.queue.length) return null;
     if(!s.queue.every(n => QUESTIONS.some(q => q.num === n))) return null;
     if(!Number.isInteger(s.pos) || s.pos < 0 || s.pos > s.queue.length) return null;
@@ -837,7 +877,25 @@ function describeSaved(s){
 const resumeBanner = document.getElementById('resumeBanner');
 const resumeOverlay = document.getElementById('resumeOverlay');
 
+function storageWorks(){
+  try{
+    localStorage.setItem('cisdf-probe', '1');
+    const ok = localStorage.getItem('cisdf-probe') === '1';
+    localStorage.removeItem('cisdf-probe');
+    return ok;
+  }catch(e){ return false; }
+}
+function updateSaveStatus(){
+  const parts = [];
+  if(storageWorks()) parts.push('browser storage');
+  if(aiBridge()) parts.push('app bridge');
+  document.getElementById('saveStatus').textContent =
+    'Build ' + BUILD + ' \u00b7 saving to: ' + (parts.length ? parts.join(' + ') : 'nothing (progress will not be kept)') +
+    ' \u00b7 paused session: ' + (loadSavedSession() ? 'yes' : 'no');
+}
+
 function refreshResumeBanner(){
+  updateSaveStatus();
   const s = loadSavedSession();
   if(s){
     document.getElementById('resumeBannerSub').textContent = describeSaved(s) + '. Starting a new drill replaces it.';
@@ -903,12 +961,42 @@ document.addEventListener('keydown', e => {
 });
 
 // on load: offer to resume an unfinished session
-(function(){
-  const s = loadSavedSession();
+function offerResume(){
   refreshResumeBanner();
+  const s = loadSavedSession();
   if(!s) return;
   document.getElementById('resumeDesc').textContent = describeSaved(s) + '. Resume it, or start fresh and discard it?';
   resumeOverlay.hidden = false;
   document.getElementById('resumeYes').focus();
+}
+(function(){
+  const b0 = bridgeRead();
+  if(b0 && b0.session && !memSession) memSession = b0.session;
+  offerResume();
+  if(!aiBridge() || b0){ bridgeReady = true; return; }
+  // Inside the app the saved copy may be handed to the page a moment after it loads, so wait a few seconds for it.
+  let tries = 0;
+  const timer = setInterval(() => {
+    tries++;
+    const b = bridgeRead();
+    if(b){
+      clearInterval(timer);
+      const pristine = stats.sessions === 0 && !Object.keys(stats.perQuestion).length;
+      if(!session && pristine && b.stats && b.stats.perQuestion){
+        stats = b.stats;
+        renderHeaderStats();
+        renderModeGrid();
+      }
+      if(!session && !memSession && b.session){
+        memSession = b.session;
+        offerResume();
+      }
+      bridgeReady = true;
+    } else if(tries >= 10 || session){
+      clearInterval(timer);
+      bridgeReady = true;
+      bridgePush();
+    }
+  }, 500);
 })();
 </script>
