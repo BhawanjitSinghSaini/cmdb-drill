@@ -103,6 +103,37 @@
   .stat .n{ font-family:"IBM Plex Mono"; font-weight:700; font-size:19px; font-variant-numeric:tabular-nums; }
   .stat .l{ font-size:10.5px; color:var(--ink-faint); text-transform:uppercase; letter-spacing:0.07em; }
 
+  /* ---------- home icon + resume prompt ---------- */
+  .brand-row{ display:flex; align-items:flex-start; gap:14px; min-width:0; }
+  .home-icon{
+    flex-shrink:0; width:54px; height:54px; padding:0; border-radius:50%;
+    border:1px solid var(--line-strong); background:var(--paper-raised); cursor:pointer; overflow:hidden;
+    transition:transform .12s ease, border-color .12s ease;
+  }
+  .home-icon:hover{ border-color:var(--accent); transform:scale(1.04); }
+  .home-icon:focus-visible{ outline:2px solid var(--focus-ring); outline-offset:3px; }
+  .home-icon img{ display:block; width:100%; height:100%; }
+  .resume-banner{
+    display:none; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+    background:var(--accent-soft); border:1px solid var(--accent); border-radius:10px;
+    padding:12px 14px; margin-bottom:20px;
+  }
+  .resume-banner .rb-text{ font-size:13.5px; color:var(--ink); margin:0; }
+  .resume-banner .rb-sub{ display:block; font-size:12px; color:var(--ink-soft); margin-top:2px; }
+  .resume-banner .rb-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+  .overlay{
+    position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center;
+    background:rgba(24,35,53,0.55); padding:20px;
+  }
+  .overlay[hidden]{ display:none; }
+  .dialog{
+    background:var(--paper-raised); color:var(--ink); border:1px solid var(--line-strong);
+    border-radius:14px; box-shadow:var(--shadow); max-width:420px; width:100%; padding:22px;
+  }
+  .dialog h2{ margin:0 0 8px; font-size:18px; }
+  .dialog p{ margin:0 0 18px; color:var(--ink-soft); font-size:14px; line-height:1.5; }
+  .dialog-actions{ display:flex; gap:10px; flex-wrap:wrap; }
+
   /* ---------- setup screen ---------- */
   .section-label{
     font-family:"IBM Plex Mono"; font-size:11px; letter-spacing:0.08em; text-transform:uppercase;
@@ -257,10 +288,13 @@
 <div class="wrap">
 
   <header class="app">
-    <div class="brand">
-      <p class="eyebrow">CIS &ndash; Data Foundations</p>
-      <h1>CMDB Data Foundations Drill</h1>
-      <p>181 practice questions on CMDB &amp; CSDM, verified against ServiceNow docs and Community sources &mdash; not just an exam-dump answer key.</p>
+    <div class="brand-row">
+      <button type="button" class="home-icon" id="homeBtn" aria-label="Go to home screen" title="Home"><img src="data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8IS0tIEJhY2tncm91bmQgLS0+CiAgPHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIGZpbGw9IiNmNWYyZWEiLz4KICAKICA8IS0tIFN1YnRsZSBncmFkaWVudCBkZWZpbml0aW9ucyAtLT4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iYmdHcmFkaWVudCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNmZmZmZmY7c3RvcC1vcGFjaXR5OjAuOCIgLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojZThkY2QwO3N0b3Atb3BhY2l0eTowLjYiIC8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgCiAgICA8bGluZWFyR3JhZGllbnQgaWQ9ImRiR3JhZGllbnQiIHgxPSIwJSIgeTE9IjAlIiB4Mj0iMCUiIHkyPSIxMDAlIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6IzJjNmM1YjtzdG9wLW9wYWNpdHk6MSIgLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMWY0ZDQyO3N0b3Atb3BhY2l0eToxIiAvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIAogICAgPGxpbmVhckdyYWRpZW50IGlkPSJhY2NlbnRHcmFkaWVudCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiNhMTVhMWY7c3RvcC1vcGFjaXR5OjEiIC8+CiAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6IzdhNDExNTtzdG9wLW9wYWNpdHk6MSIgLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgPC9kZWZzPgogIAogIDwhLS0gQmFzZSBiYWNrZ3JvdW5kIHdpdGggc3VidGxlIGRlcHRoIC0tPgogIDxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiBmaWxsPSJ1cmwoI2JnR3JhZGllbnQpIi8+CiAgCiAgPCEtLSBPdXRlciBjaXJjdWxhciBjb250YWluZXIgZm9yIGljb24gLS0+CiAgPGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIyNDAiIGZpbGw9IiNmZmZmZmYiIG9wYWNpdHk9IjAuOTUiIHN0cm9rZT0iIzJjNmM1YiIgc3Ryb2tlLXdpZHRoPSIyIi8+CiAgCiAgPCEtLSBEYXRhYmFzZSBjeWxpbmRlciAtIG1haW4gZWxlbWVudCAtLT4KICA8Zz4KICAgIDwhLS0gQ3lsaW5kZXIgYm9keSAtLT4KICAgIDxyZWN0IHg9IjE2MCIgeT0iMjAwIiB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE4MCIgZmlsbD0idXJsKCNkYkdyYWRpZW50KSIgcng9IjgiLz4KICAgIAogICAgPCEtLSBUb3AgZWxsaXBzZSBvZiBjeWxpbmRlciAtLT4KICAgIDxlbGxpcHNlIGN4PSIyNTYiIGN5PSIyMDAiIHJ4PSI5NiIgcnk9IjM1IiBmaWxsPSIjM2E4ZjdmIi8+CiAgICAKICAgIDwhLS0gVG9wIHJpbSBoaWdobGlnaHQgLS0+CiAgICA8ZWxsaXBzZSBjeD0iMjU2IiBjeT0iMjAwIiByeD0iOTYiIHJ5PSIzNSIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjNWZiNjljIiBzdHJva2Utd2lkdGg9IjIiIG9wYWNpdHk9IjAuNiIvPgogICAgCiAgICA8IS0tIEJvdHRvbSBlbGxpcHNlIG9mIGN5bGluZGVyIC0tPgogICAgPGVsbGlwc2UgY3g9IjI1NiIgY3k9IjM4MCIgcng9Ijk2IiByeT0iMzUiIGZpbGw9IiMxYTM1MzAiLz4KICA8L2c+CiAgCiAgPCEtLSBDcnlzdGFsbGluZSBnZW9tZXRyaWMgb3ZlcmxheSAtIHJlcHJlc2VudGluZyBkYXRhIHN0cnVjdHVyZSAtLT4KICA8Zz4KICAgIDwhLS0gVXBwZXIgbGVmdCBjcnlzdGFsIHNoYXJkIC0tPgogICAgPHBvbHlnb24gcG9pbnRzPSIxODAsMTYwIDE0MCwyMDAgMTgwLDI0MCAyMjAsMjAwIiBmaWxsPSIjYTE1YTFmIiBvcGFjaXR5PSIwLjg1Ii8+CiAgICA8cG9seWdvbiBwb2ludHM9IjE4MCwxNjAgMTQwLDIwMCAxODAsMjQwIDIyMCwyMDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Q5OWE1MyIgc3Ryb2tlLXdpZHRoPSIxLjUiIG9wYWNpdHk9IjAuNiIvPgogICAgCiAgICA8IS0tIFVwcGVyIHJpZ2h0IGNyeXN0YWwgc2hhcmQgLS0+CiAgICA8cG9seWdvbiBwb2ludHM9IjMzMiwxNjAgMjkyLDIwMCAzMzIsMjQwIDM3MiwyMDAiIGZpbGw9IiNhMTVhMWYiIG9wYWNpdHk9IjAuODUiLz4KICAgIDxwb2x5Z29uIHBvaW50cz0iMzMyLDE2MCAyOTIsMjAwIDMzMiwyNDAgMzcyLDIwMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZDk5YTUzIiBzdHJva2Utd2lkdGg9IjEuNSIgb3BhY2l0eT0iMC42Ii8+CiAgICAKICAgIDwhLS0gQ2VudGVyIGNvbm5lY3RpbmcgbGluZXMgLSBzdWJ0bGUgZGF0YSBwYXRod2F5cyAtLT4KICAgIDxsaW5lIHgxPSIyMjAiIHkxPSIyMDAiIHgyPSIyNTYiIHkyPSIyNTAiIHN0cm9rZT0iIzVmYjY5YyIgc3Ryb2tlLXdpZHRoPSIyIiBvcGFjaXR5PSIwLjQiLz4KICAgIDxsaW5lIHgxPSIyOTIiIHkxPSIyMDAiIHgyPSIyNTYiIHkyPSIyNTAiIHN0cm9rZT0iIzVmYjY5YyIgc3Ryb2tlLXdpZHRoPSIyIiBvcGFjaXR5PSIwLjQiLz4KICAgIAogICAgPCEtLSBMb3dlciBjcnlzdGFsIGFjY2VudCAtLT4KICAgIDxwb2x5Z29uIHBvaW50cz0iMjU2LDMyMCAyMjAsMzUwIDI1NiwzODAgMjkyLDM1MCIgZmlsbD0iI2Q5OWE1MyIgb3BhY2l0eT0iMC43NSIvPgogICAgPHBvbHlnb24gcG9pbnRzPSIyNTYsMzIwIDIyMCwzNTAgMjU2LDM4MCAyOTIsMzUwIiBmaWxsPSJub25lIiBzdHJva2U9IiNhMTVhMWYiIHN0cm9rZS13aWR0aD0iMS41IiBvcGFjaXR5PSIwLjciLz4KICA8L2c+CiAgCiAgPCEtLSBDZW50cmFsIGRhdGEgaW50ZWdyYXRpb24gc3ltYm9sIC0tPgogIDxjaXJjbGUgY3g9IjI1NiIgY3k9IjI5MCIgcj0iMjgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iIzVmYjY5YyIgc3Ryb2tlLXdpZHRoPSIyLjUiIG9wYWNpdHk9IjAuOCIvPgogIDxjaXJjbGUgY3g9IjI1NiIgY3k9IjI5MCIgcj0iMTgiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2Q5OWE1MyIgc3Ryb2tlLXdpZHRoPSIxLjUiIG9wYWNpdHk9IjAuNyIvPgogIAogIDwhLS0gSW5uZXIgY2hlY2ttYXJrIGFjY2VudCAoY2VydGlmaWNhdGlvbikgLS0+CiAgPGcgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMjU2LCAyOTApIj4KICAgIDxwYXRoIGQ9Ik0gLTYsMCBMIC0yLDQgTCA2LC00IiBmaWxsPSJub25lIiBzdHJva2U9IiM1ZmI2OWMiIHN0cm9rZS13aWR0aD0iMi41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIG9wYWNpdHk9IjAuOSIvPgogIDwvZz4KICAKICA8IS0tIFN1YnRsZSBncmlkIHBhdHRlcm4gLSByZXByZXNlbnRpbmcgQ01EQiBzdHJ1Y3R1cmUgLS0+CiAgPGcgb3BhY2l0eT0iMC4wOCIgc3Ryb2tlPSIjMTgyMzM1IiBzdHJva2Utd2lkdGg9IjEiPgogICAgPGxpbmUgeDE9IjE4MCIgeTE9IjIyMCIgeDI9IjMzMiIgeTI9IjIyMCIvPgogICAgPGxpbmUgeDE9IjE4MCIgeTE9IjI1MCIgeDI9IjMzMiIgeTI9IjI1MCIvPgogICAgPGxpbmUgeDE9IjE4MCIgeTE9IjMxMCIgeDI9IjMzMiIgeTI9IjMxMCIvPgogICAgPGxpbmUgeDE9IjE4MCIgeTE9IjM0MCIgeDI9IjMzMiIgeTI9IjM0MCIvPgogIDwvZz4KICAKICA8IS0tIEJvcmRlciBkZWZpbml0aW9uIC0tPgogIDxjaXJjbGUgY3g9IjI1NiIgY3k9IjI1NiIgcj0iMjQwIiBmaWxsPSJub25lIiBzdHJva2U9IiMyYzZjNWIiIHN0cm9rZS13aWR0aD0iMiIgb3BhY2l0eT0iMC42Ii8+Cjwvc3ZnPgo=" alt="" width="54" height="54"></button>
+      <div class="brand">
+        <p class="eyebrow">CIS &ndash; Data Foundations</p>
+        <h1>CMDB Data Foundations Drill</h1>
+        <p>181 practice questions on CMDB &amp; CSDM, verified against ServiceNow docs and Community sources &mdash; not just an exam-dump answer key.</p>
+      </div>
     </div>
     <div class="stat-row">
       <div class="stat"><div class="n mono" id="statBest">&mdash;</div><div class="l">Best score</div></div>
@@ -270,6 +304,13 @@
   </header>
 
   <div id="setup">
+    <div class="resume-banner" id="resumeBanner">
+      <p class="rb-text"><strong>Unfinished session</strong><span class="rb-sub" id="resumeBannerSub"></span></p>
+      <div class="rb-actions">
+        <button class="btn primary" id="bannerResume" type="button">Resume</button>
+        <button class="btn" id="bannerDiscard" type="button">Discard</button>
+      </div>
+    </div>
     <p class="section-label">Choose a drill</p>
     <div class="mode-grid" id="modeGrid"></div>
 
@@ -345,6 +386,17 @@
     </div>
   </div>
 
+</div>
+
+<div class="overlay" id="resumeOverlay" role="dialog" aria-modal="true" aria-labelledby="resumeTitle" hidden>
+  <div class="dialog">
+    <h2 id="resumeTitle">Pick up where you left off?</h2>
+    <p id="resumeDesc"></p>
+    <div class="dialog-actions">
+      <button class="btn primary" id="resumeYes" type="button">Resume session</button>
+      <button class="btn" id="resumeNo" type="button">Start fresh</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -461,8 +513,10 @@ document.getElementById('resetStats').addEventListener('click', () => {
   if(confirm('Clear all saved quiz progress in this browser?')){
     stats = { sessions: 0, bestPct: null, perQuestion: {}, lastMissed: [] };
     saveStats(stats);
+    clearSavedSession();
     renderHeaderStats();
     renderModeGrid();
+    refreshResumeBanner();
   }
 });
 
@@ -493,6 +547,7 @@ let currentRender = null; // holds per-question render context for grading
 function renderQuestion(){
   const q = session.queue[session.pos];
   session.answered = false;
+  saveSession();
   document.getElementById('progressFill').style.width = (session.pos / session.queue.length * 100) + '%';
   document.getElementById('quizPos').textContent = `Question ${session.pos + 1} of ${session.queue.length}`;
   document.getElementById('quizTopic').textContent = q.topic;
@@ -611,6 +666,7 @@ document.getElementById('submitBtn').addEventListener('click', () => {
 
   stats.perQuestion[q.num] = { last: correct ? 'correct' : 'incorrect' };
   saveStats(stats);
+  saveSession();
 
   document.getElementById('quizScore').textContent = `Score: ${session.score} / ${session.pos + 1}`;
   document.getElementById('progressFill').style.width = ((session.pos + 1) / session.queue.length * 100) + '%';
@@ -669,6 +725,7 @@ document.getElementById('quitBtn').addEventListener('click', () => {
 });
 
 function finishSession(){
+  clearSavedSession();
   document.getElementById('quiz').style.display = 'none';
   document.getElementById('results').style.display = 'block';
 
@@ -735,4 +792,123 @@ document.getElementById('backToMenuBtn').addEventListener('click', () => {
   document.getElementById('setup').style.display = 'block';
   renderModeGrid();
 });
+
+// ---------------- resume / home navigation ----------------
+const SESSION_KEY = 'cisdf-drill-session-v1';
+
+function saveSession(){
+  if(!session) return;
+  try{
+    localStorage.setItem(SESSION_KEY, JSON.stringify({
+      v: 1,
+      modeId: session.modeId,
+      queue: session.queue.map(q => q.num),
+      // if the current question is already answered, resume at the next one
+      pos: session.answered ? session.pos + 1 : session.pos,
+      score: session.score,
+      missedNums: session.missedNums,
+      perTopic: session.perTopic,
+      savedAt: Date.now(),
+    }));
+  }catch(e){}
+}
+function clearSavedSession(){
+  try{ localStorage.removeItem(SESSION_KEY); }catch(e){}
+}
+function loadSavedSession(){
+  try{
+    const raw = localStorage.getItem(SESSION_KEY);
+    if(!raw) return null;
+    const s = JSON.parse(raw);
+    if(!s || s.v !== 1 || !Array.isArray(s.queue) || !s.queue.length) return null;
+    if(!s.queue.every(n => QUESTIONS.some(q => q.num === n))) return null;
+    if(!Number.isInteger(s.pos) || s.pos < 0 || s.pos > s.queue.length) return null;
+    if(typeof s.score !== 'number' || !Array.isArray(s.missedNums) || typeof s.perTopic !== 'object' || s.perTopic === null) return null;
+    return s;
+  }catch(e){ return null; }
+}
+function describeSaved(s){
+  const modeName = (MODES.find(m => m.id === s.modeId) || {}).title || 'Topic drill';
+  const done = s.pos >= s.queue.length;
+  return modeName + ': ' + (done ? 'all ' + s.queue.length + ' questions answered, results not yet viewed'
+    : s.pos + ' of ' + s.queue.length + ' answered, ' + s.score + ' correct so far');
+}
+
+const resumeBanner = document.getElementById('resumeBanner');
+const resumeOverlay = document.getElementById('resumeOverlay');
+
+function refreshResumeBanner(){
+  const s = loadSavedSession();
+  if(s){
+    document.getElementById('resumeBannerSub').textContent = describeSaved(s) + '. Starting a new drill replaces it.';
+    resumeBanner.style.display = 'flex';
+  } else {
+    resumeBanner.style.display = 'none';
+  }
+}
+
+function hideResumeOverlay(){ resumeOverlay.hidden = true; }
+
+function resumeSaved(){
+  const s = loadSavedSession();
+  hideResumeOverlay();
+  if(!s){ refreshResumeBanner(); return; }
+  session = {
+    modeId: s.modeId,
+    queue: s.queue.map(n => QUESTIONS.find(q => q.num === n)),
+    pos: s.pos,
+    score: s.score,
+    answered: false,
+    missedNums: s.missedNums,
+    perTopic: s.perTopic,
+  };
+  document.getElementById('setup').style.display = 'none';
+  document.getElementById('results').style.display = 'none';
+  if(session.pos >= session.queue.length){
+    document.getElementById('quiz').style.display = 'none';
+    finishSession();
+    return;
+  }
+  document.getElementById('quiz').style.display = 'block';
+  renderQuestion();
+  window.scrollTo(0, 0);
+}
+
+function discardSaved(){
+  clearSavedSession();
+  hideResumeOverlay();
+  refreshResumeBanner();
+}
+
+function goHome(){
+  // an in-progress session is already saved after every question and answer, so leaving here just pauses it
+  document.getElementById('quiz').style.display = 'none';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('setup').style.display = 'block';
+  topicPanel.classList.remove('open');
+  hideResumeOverlay();
+  renderModeGrid();
+  renderHeaderStats();
+  refreshResumeBanner();
+  window.scrollTo(0, 0);
+}
+
+document.getElementById('homeBtn').addEventListener('click', goHome);
+document.getElementById('bannerResume').addEventListener('click', resumeSaved);
+document.getElementById('bannerDiscard').addEventListener('click', discardSaved);
+document.getElementById('resumeYes').addEventListener('click', resumeSaved);
+document.getElementById('resumeNo').addEventListener('click', discardSaved);
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape' && !resumeOverlay.hidden){ hideResumeOverlay(); refreshResumeBanner(); }
+});
+
+// on load: offer to resume an unfinished session
+(function(){
+  const s = loadSavedSession();
+  refreshResumeBanner();
+  if(!s) return;
+  document.getElementById('resumeDesc').textContent = describeSaved(s) + '. Resume it, or start fresh and discard it?';
+  resumeOverlay.hidden = false;
+  document.getElementById('resumeYes').focus();
+})();
 </script>
